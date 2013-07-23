@@ -41,8 +41,10 @@ class BaseEventManager(EventManager):
 
         self.set_event("recv0A", "recv_player")
 
+        self.set_event("recv0B", "recv_player_position")
         self.set_event("sent0B", "sent_player_position")
 
+        self.set_event("recv0C", "recv_player_look")
         self.set_event("sent0C", "sent_player_look")
 
         self.set_event("recv0D", "recv_player_position_and_look")
