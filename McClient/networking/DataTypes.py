@@ -75,7 +75,8 @@ class TypeReader(object):
     def read_bytearray(self, length=None):
         if not length:
             length = self.read_short()
-        data = struct.unpack("!" + str(length) + "s", self.read(length))[0]
+        data = self.read(length)
+        data = struct.unpack("!" + str(length) + "s", data)[0]
         return data
 
     def read_slot(self):

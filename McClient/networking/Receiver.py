@@ -460,7 +460,7 @@ class Receiver(BaseReceiver):
                 amount = self.connection.read_double()
                 operation = self.connection.read_byte()                
 
-                modifiers.append({"uuid": uuid_1 << 32 + uuid_2,
+                modifiers.append({"uuid": (uuid_1 << 32) + uuid_2,
                                   "amount": amount,
                                   "operation": operation})
 
