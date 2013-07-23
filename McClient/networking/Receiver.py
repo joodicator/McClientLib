@@ -110,6 +110,36 @@ class Receiver(BaseReceiver):
 
         return toReturn
 
+    def handle0A(self):
+        on_ground = self.connection.read_boolean()
+        toReturn = {"on_ground": on_ground}
+
+        return toReturn
+
+    def handle0B(self):
+        x = self.connection.read_double()
+        y = self.connection.read_double()
+        stance = self.connection.read_double()
+        z = self.connection.read_double()
+        on_ground = self.connection.read_boolean()
+        toReturn = {"x": x,
+                    "y": y,
+                    "stance": stance,
+                    "z": x,
+                    "on_ground": on_ground}
+        
+        return toReturn
+
+    def handle0C(self):
+        yaw = self.connection.read_float()
+        pitch = self.connection.read_float()
+        on_ground = self.connection.read_boolean()
+        toReturn = {"yaw": yaw,
+                    "pitch": patch,
+                    "on_ground": on_ground}
+        
+        return toReturn
+
     def handle0D(self):
         x = self.connection.read_double()
         stance = self.connection.read_double()
@@ -421,7 +451,21 @@ class Receiver(BaseReceiver):
         for i in xrange(prop_count):
             key = self.connection.read_string()
             value = self.connection.read_double()
-            properties[key] = value
+
+            modifiers = []
+            mod_count = self.connection.read_short()
+            for j in xrange(mod_count):
+                uuid_1 = self.connection.read_long()
+                uuid_2 = self.connection.read_long()
+                amount = self.connection.read_double()
+                operation = self.connection.read_byte()                
+
+                modifiers.append({"uuid": uuid_1 << 32 + uuid_2,
+                                  "amount": amount,
+                                  "operation": operation})
+
+            properties[key] = {"value": value,
+                               "modifiers": modifiers}
 
         toReturn = {"EID": EID,
                     "properties": properties}
@@ -760,6 +804,18 @@ class Receiver(BaseReceiver):
 
         return toReturn
 
+    def handle85(self):
+        field1 = read_byte()
+        field2 = read_int()
+        field3 = read_int()
+        field4 = read_int()
+        toReturn = {"field1": field1,
+                    "field2": field2,
+                    "field3": field3,
+                    "field4": field4}
+
+        return toReturn
+
     def handleC8(self):
         statID = self.connection.read_int()
         amount = self.connection.read_int()
@@ -862,13 +918,13 @@ class Receiver(BaseReceiver):
         friendly_fire = None
         players = []
 
-        if mode == 0 or 2:
+        if mode:
             team_display_name = self.connection.read_string()
             team_prefix = self.connection.read_string()
             team_suffix = self.connection.read_string()
             friendly_fire = self.connection.read_boolean()
 
-        if mode == 0 or 3 or 4:
+        if mode:
             player_count = self.read_short()
             for i in range(player_count):
                 players.append(self.connection.read_string())
